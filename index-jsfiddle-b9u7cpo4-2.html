@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>memorykeeperr</title>
+
+  <style>
+    /* Palette */
+:root {
+  --crimson-rust: #D72638;
+  --midnight-charcoal: #1A1A1A;
+  --porcelain-white: #F5F5F5;
+  --ash-gray: #C2C2C2;
+  --pure-black: #000000;
+  --soft-white: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--midnight-charcoal);
+  color: var(--soft-white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--crimson-rust);
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.logo svg {
+  fill: var(--soft-white);
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-grow: 1;
+  align-items: center;
+}
+
+nav button {
+  background: transparent;
+  border: 2px solid var(--soft-white);
+  color: var(--soft-white);
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+nav button:hover,
+nav button.active {
+  background: var(--soft-white);
+  color: var(--crimson-rust);
+}
+
+#logoutBtn {
+  background: var(--pure-black);
+  border-color: var(--pure-black);
+}
+
+main {
+  flex-grow: 1;
+  padding: 20px;
+  background: var(--porcelain-white);
+  color: var(--midnight-charcoal);
+  min-height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.page {
+  display: none;
+}
+
+.page.active,
+.page:not(.hidden) {
+  display: block;
+}
+
+h1 {
+  color: var(--crimson-rust);
+  margin-bottom: 20px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--midnight-charcoal);
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border: 1.5px solid var(--ash-gray);
+  border-radius: 4px;
+  font-size: 1rem;
+  color: var(--midnight-charcoal);
+}
+
+button[type="submit"],
+button {
+  background: var(--crimson-rust);
+  border: none;
+  color: var(--soft-white);
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #a51f27;
+}
+
+.overview-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1 1 250px;
+  background: var(--soft-white);
+  color: var(--midnight-charcoal);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.memories-grid {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.memory-card {
+  background: var(--soft-white);
+  color: var(--midnight-charcoal);
+  width: 150px;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.memory-card img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.memory-card p {
+  padding: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.timeline {
+  list-style: none;
+  padding-left: 0;
+  color: var(--midnight-charcoal);
+  font-weight: 600;
+}
+
+.timeline li {
+  padding: 8px 0;
+  border-left: 3px solid var(--crimson-rust);
+  margin-left: 10px;
+  position: relative;
+}
+
+.timeline li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: var(--crimson-rust);
+  border-radius: 50%;
+  position: absolute;
+  left: -7px;
+  top: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#addAccountForm input {
+  margin-bottom: 10px;
+  padding: 6px;
+  width: 200px;
+}
+
+.removeBtn {
+  background: var(--crimson-rust);
+  border: none;
+  color: var(--soft-white);
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.removeBtn:hover {
+  background: #a51f27;
+}
+
+  </style>
+
+  
+</head>
+<body>
+  <div id="app">
+  <header>
+    <div class="logo">
+      <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#FFFFFF" d="M32 2C21 14 15 28 15 28s7-4 17-2c-10 2-18 10-18 10s10-7 18-8c8-1 14 3 14 3s-11-18-14-29z"/>
+      </svg>
+    </div>
+    <nav>
+      <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+      <button class="nav-btn" data-page="memoryVault">Memory Vault</button>
+      <button class="nav-btn" data-page="aiSetup">AI Setup</button>
+      <button class="nav-btn" data-page="quiz">Personality Quiz</button>
+      <button class="nav-btn" data-page="digitalSync">Digital Sync</button>
+      <button class="nav-btn" data-page="trustedContact">Trusted Contact</button>
+      <button class="nav-btn" data-page="afterlifeSettings">Afterlife Settings</button>
+      <button class="nav-btn" data-page="memoryMap">Memory Map</button>
+      <button id="logoutBtn">Sign Out</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Sign In / Sign Up Pages -->
+    <section id="signIn" class="page">
+      <h1>Sign In</h1>
+      <form id="signInForm">
+        <label>Email<input type="email" required></label>
+        <label>Password<input type="password" required></label>
+        <button type="submit">Sign In</button>
+      </form>
+      <p>Don't have an account? <a href="#" id="toSignUp">Sign Up</a></p>
+    </section>
+
+    <section id="signUp" class="page hidden">
+      <h1>Sign Up</h1>
+      <form id="signUpForm">
+        <label>Full Name<input type="text" required></label>
+        <label>Email<input type="email" required></label>
+        <label>Password<input type="password" required></label>
+        <button type="submit">Create Account</button>
+      </form>
+      <p>Already have an account? <a href="#" id="toSignIn">Sign In</a></p>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboard" class="page hidden">
+      <h1>Welcome to MemoryKeeper</h1>
+      <p>Your secure digital legacy platform. Store your memories, manage your digital footprint, and prepare your digital afterlife.</p>
+      <div class="overview-cards">
+        <div class="card">
+          <h2>Memory Vault</h2>
+          <p>Browse your saved photos, notes, and important moments.</p>
+        </div>
+        <div class="card">
+          <h2>AI Memory Setup</h2>
+          <p>Customize how AI preserves and interacts with your memories.</p>
+        </div>
+        <div class="card">
+          <h2>Digital Sync</h2>
+          <p>Connect your social accounts for seamless management.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Memory Vault -->
+    <section id="memoryVault" class="page hidden">
+      <h1>Memory Vault</h1>
+      <div class="memories-grid">
+        <div class="memory-card">
+          <img src="https://via.placeholder.com/150" alt="Memory photo">
+          <p><strong>Summer 2024</strong> - Beach trip with friends.</p>
+        </div>
+        <div class="memory-card">
+          <img src="https://via.placeholder.com/150" alt="Memory photo">
+          <p><strong>Graduation Day</strong> - Proud moment at university.</p>
+        </div>
+        <div class="memory-card">
+          <img src="https://via.placeholder.com/150" alt="Memory photo">
+          <p><strong>Family Reunion</strong> - Cherished time together.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Setup -->
+    <section id="aiSetup" class="page hidden">
+      <h1>AI Memory Setup</h1>
+      <form id="aiSetupForm">
+        <label><input type="checkbox" checked> Allow AI to generate memory summaries</label><br>
+        <label><input type="checkbox"> Enable AI voice messages</label><br>
+        <label><input type="checkbox" checked> Allow AI to answer messages after passing</label><br>
+        <button type="submit">Save Settings</button>
+      </form>
+    </section>
+
+    <!-- Personality Quiz -->
+    <section id="quiz" class="page hidden">
+      <h1>Personality Quiz</h1>
+      <form id="quizForm">
+        <label>What best describes your approach to memories?
+          <select required>
+            <option value="">Select</option>
+            <option value="reflective">Reflective and detailed</option>
+            <option value="light">Light and humorous</option>
+            <option value="factual">Factual and precise</option>
+          </select>
+        </label>
+        <label>How often do you want AI to engage with your legacy?
+          <select required>
+            <option value="">Select</option>
+            <option value="often">Often, actively</option>
+            <option value="sometimes">Sometimes</option>
+            <option value="rarely">Rarely or never</option>
+          </select>
+        </label>
+        <button type="submit">Submit Quiz</button>
+      </form>
+      <div id="quizResult" class="hidden"></div>
+    </section>
+
+    <!-- Digital Footprint Sync -->
+    <section id="digitalSync" class="page hidden">
+      <h1>Digital Footprint Sync</h1>
+      <p>Connected Accounts:</p>
+      <ul id="accountList">
+        <li>Facebook <button class="removeBtn">Remove</button></li>
+        <li>Instagram <button class="removeBtn">Remove</button></li>
+        <li>Twitter <button class="removeBtn">Remove</button></li>
+      </ul>
+      <button id="addAccountBtn">Add Account</button>
+      <div id="addAccountForm" class="hidden">
+        <input type="text" placeholder="Account Name" id="newAccountInput">
+        <button id="saveAccountBtn">Save</button>
+        <button id="cancelAccountBtn">Cancel</button>
+      </div>
+    </section>
+
+    <!-- Trusted Contact -->
+    <section id="trustedContact" class="page hidden">
+      <h1>Trusted Contact</h1>
+      <form id="trustedContactForm">
+        <label>Full Name<input type="text" required></label>
+        <label>Email<input type="email" required></label>
+        <label>Phone Number<input type="tel"></label>
+        <button type="submit">Save Trusted Contact</button>
+      </form>
+    </section>
+
+    <!-- Afterlife Settings -->
+    <section id="afterlifeSettings" class="page hidden">
+      <h1>Afterlife Settings</h1>
+      <form id="afterlifeForm">
+        <label><input type="checkbox"> Send automated emails after passing</label><br>
+        <label><input type="checkbox" checked> Release memories gradually over time</label><br>
+        <label><input type="checkbox"> Enable memorial webpage</label><br>
+        <button type="submit">Save Settings</button>
+      </form>
+    </section>
+
+    <!-- Memory Map -->
+    <section id="memoryMap" class="page hidden">
+      <h1>Memory Map</h1>
+      <p>A timeline of your important life events:</p>
+      <ul class="timeline">
+        <li><strong>2000</strong> - Born in Beirut</li>
+        <li><strong>2018</strong> - Graduated High School</li>
+        <li><strong>2023</strong> - Started MemoryKeeper Project</li>
+        <li><strong>2025</strong> - Presented prototype</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+
+  <script>
+    // Navigation and page handling
+const pages = {
+  signIn: document.getElementById('signIn'),
+  signUp: document.getElementById('signUp'),
+  dashboard: document.getElementById('dashboard'),
+  memoryVault: document.getElementById('memoryVault'),
+  aiSetup: document.getElementById('aiSetup'),
+  quiz: document.getElementById('quiz'),
+  digitalSync: document.getElementById('digitalSync'),
+  trustedContact: document.getElementById('trustedContact'),
+  afterlifeSettings: document.getElementById('afterlifeSettings'),
+  memoryMap: document.getElementById('memoryMap')
+};
+
+const navButtons = document.querySelectorAll('.nav-btn');
+const logoutBtn = document.getElementById('logoutBtn');
+const app = document.getElementById('app');
+
+let loggedIn = false;
+
+// Show only one page at a time
+function showPage(pageName) {
+  Object.values(pages).forEach(p => p.classList.add('hidden'));
+  if (pages[pageName]) pages[pageName].classList.remove('hidden');
+
+  navButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.page === pageName);
+  });
+}
+
+function updateUI() {
+  if (loggedIn) {
+    showPage('dashboard');
+    document.querySelector('header').style.display = 'flex';
+  } else {
+    showPage('signIn');
+    document.querySelector('header').style.display = 'none';
+  }
+}
+
+// Sign In / Sign Up toggles
+document.getElementById('toSignUp').addEventListener('click', e => {
+  e.preventDefault();
+  showPage('signUp');
+});
+
+document.getElementById('toSignIn').addEventListener('click', e => {
+  e.preventDefault();
+  showPage('signIn');
+});
+
+// Handle nav buttons
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!loggedIn) return;
+    showPage(btn.dataset.page);
+  });
+});
+
+// Sign In form
+document.getElementById('signInForm').addEventListener('submit', e => {
+  e.preventDefault();
+  // Simple demo: any input logs in
+  loggedIn = true;
+  updateUI();
+});
+
+// Sign Up form
+document.getElementById('signUpForm').addEventListener('submit', e => {
+  e.preventDefault();
+  // Simple demo: signup logs in
+  loggedIn = true;
+  updateUI();
+});
+
+// Logout
+logoutBtn.addEventListener('click', () => {
+  loggedIn = false;
+  updateUI();
+});
+
+// AI Setup form
+document.getElementById('aiSetupForm').addEventListener('submit', e => {
+  e.preventDefault();
+  alert('AI Setup settings saved!');
+});
+
+// Personality Quiz
+const quizForm = document.getElementById('quizForm');
+const quizResult = document.getElementById('quizResult');
+
+quizForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const approach = quizForm.querySelector('select:nth-of-type(1)').value;
+  const frequency = quizForm.querySelector('select:nth-of-type(2)').value;
+
+  let message = `You prefer a <strong>${approach}</strong> approach to memories and want AI to engage <strong>${frequency}</strong>.`;
+  quizResult.innerHTML = `<h3>Quiz Result</h3><p>${message}</p>`;
+  quizResult.classList.remove('hidden');
+});
+
+// Digital Sync account list
+const accountList = document.getElementById('accountList');
+const addAccountBtn = document.getElementById('addAccountBtn');
+const addAccountForm = document.getElementById('addAccountForm');
+const newAccountInput = document.getElementById('newAccountInput');
+const saveAccountBtn = document.getElementById('saveAccountBtn');
+const cancelAccountBtn = document.getElementById('cancelAccountBtn');
+
+addAccountBtn.addEventListener('click', () => {
+  addAccountForm.classList.remove('hidden');
+  newAccountInput.value = '';
+  newAccountInput.focus();
+  addAccountBtn.disabled = true;
+});
+
+saveAccountBtn.addEventListener('click', () => {
+  const name = newAccountInput.value.trim();
+  if (name) {
+    const li = document.createElement('li');
+    li.textContent = name + ' ';
+    const btn = document.createElement('button');
+    btn.textContent = 'Remove';
+    btn.className = 'removeBtn';
+    btn.addEventListener('click', () => li.remove());
+    li.appendChild(btn);
+    accountList.appendChild(li);
+    addAccountForm.classList.add('hidden');
+    addAccountBtn.disabled = false;
+  } else {
+    alert('Please enter account name.');
+  }
+});
+
+cancelAccountBtn.add
+
+  </script>
+</body>
+</html>
